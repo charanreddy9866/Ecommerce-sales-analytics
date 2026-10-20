@@ -1,0 +1,296 @@
+<title>E-Commerce Sales Analytics</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: masthead + KPI strip, full-width trend, then a two-column grid of breakdown panels; single column on phones */
+:root {
+  --bg: #f3f5f6; --panel: #ffffff; --ink: #142029; --muted: #5b6b76; --rule: #dde3e7;
+  --accent: #0e6e66; --accent-soft: #d6ebe8; --accent-2: #b4590f; --grid: #e7ecef;
+  --good: #1f7a3d; --warn: #a15c00; --bad: #b42318; --good-bg: #e3f2e8; --warn-bg: #fbeedb; --bad-bg: #fbe4e2;
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f171c; --panel: #16222a; --ink: #e6edf1; --muted: #93a4ae; --rule: #263640;
+  --accent: #4cc2b6; --accent-soft: #173a38; --accent-2: #f0a35e; --grid: #22323b;
+  --good: #6fd08f; --warn: #f2b45c; --bad: #ff8a80; --good-bg: #15301f; --warn-bg: #36280f; --bad-bg: #3a1a18;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f171c; --panel: #16222a; --ink: #e6edf1; --muted: #93a4ae; --rule: #263640;
+  --accent: #4cc2b6; --accent-soft: #173a38; --accent-2: #f0a35e; --grid: #22323b;
+  --good: #6fd08f; --warn: #f2b45c; --bad: #ff8a80; --good-bg: #15301f; --warn-bg: #36280f; --bad-bg: #3a1a18;
+  color-scheme: dark; }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 14px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 28px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 20px; }
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(26px, 4vw, 36px); line-height: 1.1; margin: 4px 0 0; text-wrap: balance; letter-spacing: -.01em; }
+.meta { color: var(--muted); font-size: 13px; }
+.meta code { font-family: var(--mono); font-size: 12px; }
+
+.kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; }
+.kpi { padding: 16px 18px; display: grid; gap: 4px; min-width: 0; }
+.kpi + .kpi { border-left: 1px solid var(--rule); }
+.kpi .label { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.kpi .value { font-family: var(--display); font-weight: 700; font-size: 26px; font-variant-numeric: tabular-nums; }
+.kpi .note { font-size: 12px; color: var(--muted); }
+.up { color: var(--good); font-weight: 600; }
+
+.panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 18px 20px; display: grid; gap: 12px; min-width: 0; }
+.panel-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+h2 { font-family: var(--display); font-weight: 700; font-size: 17px; margin: 0; }
+.sub { color: var(--muted); font-size: 12.5px; margin: 0; }
+.src { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.chart { position: relative; height: 280px; }
+.chart.tall { height: 320px; }
+
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+.seg button { font: inherit; font-size: 12.5px; padding: 6px 12px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--rule); }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+.seg button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+select { font: inherit; font-size: 12.5px; padding: 5px 8px; border: 1px solid var(--rule); border-radius: 8px; background: var(--panel); color: var(--ink); }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+th, td { padding: 8px 10px; text-align: right; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+tr:last-child td { border-bottom: 0; }
+
+.dq { display: grid; gap: 8px; }
+.dq-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--rule); }
+.dq-row:last-child { border-bottom: 0; }
+.pill { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; letter-spacing: .04em; }
+.pill.fixed { background: var(--warn-bg); color: var(--warn); }
+.pill.pass { background: var(--good-bg); color: var(--good); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.rank { display: grid; gap: 6px; }
+.rank-row { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.rank-row .n { font-family: var(--mono); color: var(--muted); }
+.bar { height: 6px; border-radius: 3px; background: var(--accent); }
+footer { color: var(--muted); font-size: 12px; }
+
+@media (max-width: 860px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpi + .kpi { border-left: 0; }
+  .kpi { border-bottom: 1px solid var(--rule); }
+  .grid2 { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Online retail · Jan 2024 – Dec 2025</div>
+      <h1>E-Commerce Sales Analytics</h1>
+    </div>
+    <div class="meta">Synthetic dataset · 25,000 orders · 43,144 line items · built from <code>fact_sales</code></div>
+  </header>
+
+  <section class="kpis" aria-label="Key metrics" id="kpis"></section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Monthly trend</h2>
+        <p class="sub">Delivered orders only. Hover a month for month-over-month change.</p>
+      </div>
+      <div class="seg" role="group" aria-label="Metric">
+        <button type="button" id="m-rev" data-m="total_revenue" aria-pressed="true">Revenue</button>
+        <button type="button" id="m-ord" data-m="total_orders" aria-pressed="false">Orders</button>
+        <button type="button" id="m-aov" data-m="avg_order_value" aria-pressed="false">Avg order value</button>
+      </div>
+    </div>
+    <div class="chart tall"><canvas id="trend" aria-label="Monthly trend chart"></canvas></div>
+    <div class="src">sql/04_analysis.sql · monthly_revenue (LAG for MoM growth)</div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <div class="panel-head"><h2>Top 10 products</h2><span class="src">top_products</span></div>
+      <div class="chart"><canvas id="products" aria-label="Top products by revenue"></canvas></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>Revenue by category</h2><span class="src">category_share</span></div>
+      <p class="sub">Bars show share of revenue; the line is cumulative share (Pareto view).</p>
+      <div class="chart"><canvas id="category" aria-label="Revenue share by category"></canvas></div>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section class="panel">
+      <div class="panel-head"><h2>Customer segments</h2><span class="src">customer_behavior</span></div>
+      <div class="table-wrap"><table id="segments"></table></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Monthly leaders</h2>
+        <select id="month" aria-label="Month"></select>
+      </div>
+      <p class="sub">Top 3 products in the selected month, ranked with RANK() over each month.</p>
+      <div class="rank" id="leaders"></div>
+      <div class="src">product_rank_by_month</div>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section class="panel">
+      <div class="panel-head"><h2>Channel × region</h2><span class="src">channel_region</span></div>
+      <div class="chart"><canvas id="channels" aria-label="Revenue by channel and region"></canvas></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2>Return rate by category</h2><span class="src">return_rate_by_category</span></div>
+      <div class="chart"><canvas id="returns" aria-label="Return rate by category"></canvas></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div><h2>Data-quality checks</h2><p class="sub">Run on raw order_items before modeling. Failing rows are removed or repaired in <code>fact_sales</code>.</p></div>
+      <span class="src">sql/02_data_quality.sql</span>
+    </div>
+    <div class="dq" id="dq"></div>
+  </section>
+
+  <footer>Source code and SQL: github.com/charanreddy9866/Ecommerce-sales-analytics · Data is synthetic, generated for demonstration.</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const D = __DATA__;
+
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const money = (v, d = 0) => '$' + Number(v).toLocaleString('en-US', { maximumFractionDigits: d, minimumFractionDigits: d });
+const compact = v => v >= 1e6 ? '$' + (v / 1e6).toFixed(2) + 'M' : v >= 1e3 ? '$' + (v / 1e3).toFixed(0) + 'K' : money(v);
+const monthLabel = s => new Date(s + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+
+// KPIs
+const k = D.kpis;
+document.getElementById('kpis').innerHTML = [
+  ['Revenue', compact(k.revenue), `2025: <span class="up">+${k.yoy_pct.toFixed(1)}%</span> vs 2024`],
+  ['Orders', k.orders.toLocaleString('en-US'), 'Delivered'],
+  ['Avg order value', money(k.aov, 2), 'Revenue ÷ orders'],
+  ['Repeat rate', k.repeat_rate.toFixed(1) + '%', 'Customers with 2+ orders'],
+  ['Peak month', monthLabel(k.peak_month), compact(k.peak_revenue) + ' revenue'],
+].map(([l, v, n]) => `<div class="kpi"><span class="label">${l}</span><span class="value">${v}</span><span class="note">${n}</span></div>`).join('');
+
+// Segments table
+document.getElementById('segments').innerHTML =
+  '<thead><tr><th>Segment</th><th>Customers</th><th>Orders / cust.</th><th>Revenue / cust.</th><th>Repeat rate</th></tr></thead><tbody>' +
+  D.segments.map(s => `<tr><td>${s.segment}</td><td>${s.customers.toLocaleString('en-US')}</td><td>${s.orders_per_customer.toFixed(2)}</td><td>${money(s.revenue_per_customer)}</td><td>${s.repeat_rate_pct.toFixed(1)}%</td></tr>`).join('') +
+  '</tbody>';
+
+// Data-quality list
+document.getElementById('dq').innerHTML = D.dq.map(d => `
+  <div class="dq-row"><span>${d.label}</span><span class="num">${d.failing_rows.toLocaleString('en-US')} rows</span>
+  <span class="pill ${d.failing_rows ? 'fixed' : 'pass'}">${d.failing_rows ? d.action.toUpperCase() : 'PASS'}</span></div>`).join('');
+
+// Monthly leaders
+const sel = document.getElementById('month');
+const months = [...new Set(D.leaders.map(r => r.sales_month))];
+sel.innerHTML = months.map(m => `<option value="${m}">${monthLabel(m)}</option>`).join('');
+sel.value = months[months.length - 1];
+function renderLeaders() {
+  const rows = D.leaders.filter(r => r.sales_month === sel.value);
+  const max = Math.max(...rows.map(r => r.revenue));
+  document.getElementById('leaders').innerHTML = rows.map(r => `
+    <div class="rank-row"><span class="n">${r.product_rank}</span>
+      <div style="display:grid;gap:4px;min-width:0"><span>${r.product_name}</span><div class="bar" style="width:${(r.revenue / max * 100).toFixed(1)}%"></div></div>
+      <span class="num">${money(r.revenue)}</span></div>`).join('');
+}
+sel.addEventListener('change', renderLeaders);
+renderLeaders();
+
+// Charts
+let charts = [];
+function base(extra = {}) {
+  const ink = css('--muted'), grid = css('--grid');
+  return {
+    responsive: true, maintainAspectRatio: false, animation: { duration: 300 },
+    plugins: { legend: { labels: { color: ink, boxWidth: 12, font: { family: 'IBM Plex Sans' } } } },
+    scales: {
+      x: { ticks: { color: ink, font: { family: 'IBM Plex Sans', size: 11 } }, grid: { color: grid } },
+      y: { ticks: { color: ink, font: { family: 'IBM Plex Mono', size: 11 } }, grid: { color: grid }, beginAtZero: true },
+    },
+    ...extra,
+  };
+}
+let metric = 'total_revenue';
+const fmt = { total_revenue: compact, total_orders: v => Number(v).toLocaleString('en-US'), avg_order_value: v => money(v, 0) };
+
+function draw() {
+  charts.forEach(c => c.destroy()); charts = [];
+  const accent = css('--accent'), accent2 = css('--accent-2'), soft = css('--accent-soft');
+
+  const tOpts = base();
+  tOpts.plugins.legend.display = false;
+  tOpts.scales.y.ticks.callback = v => fmt[metric](v);
+  tOpts.plugins.tooltip = { callbacks: {
+    label: c => fmt[metric](c.raw),
+    afterLabel: c => { const g = D.monthly[c.dataIndex].mom_growth_pct; return metric === 'total_revenue' && g != null ? `MoM ${g > 0 ? '+' : ''}${g}%` : ''; } } };
+  charts.push(new Chart(document.getElementById('trend'), {
+    type: 'line',
+    data: { labels: D.monthly.map(m => monthLabel(m.sales_month)),
+      datasets: [{ data: D.monthly.map(m => m[metric]), borderColor: accent, backgroundColor: soft, fill: true, tension: .25,
+        pointRadius: D.monthly.map((_, i) => i === D.monthly.length - 1 ? 4 : 2), pointBackgroundColor: accent }] },
+    options: tOpts }));
+
+  const pOpts = base({ indexAxis: 'y' });
+  pOpts.plugins.legend.display = false;
+  pOpts.scales.x.ticks.callback = v => compact(v);
+  pOpts.plugins.tooltip = { callbacks: { label: c => `${money(c.raw)} · ${D.products[c.dataIndex].units_sold.toLocaleString('en-US')} units` } };
+  charts.push(new Chart(document.getElementById('products'), {
+    type: 'bar',
+    data: { labels: D.products.map(p => p.product_name), datasets: [{ data: D.products.map(p => p.revenue), backgroundColor: accent, borderRadius: 3 }] },
+    options: pOpts }));
+
+  const cOpts = base();
+  cOpts.scales.y.max = 100; cOpts.scales.y.ticks.callback = v => v + '%';
+  charts.push(new Chart(document.getElementById('category'), {
+    data: { labels: D.categories.map(c => c.category), datasets: [
+      { type: 'bar', label: 'Share of revenue', data: D.categories.map(c => c.pct_of_total), backgroundColor: accent, borderRadius: 3, order: 2 },
+      { type: 'line', label: 'Cumulative', data: D.categories.map(c => c.cumulative_pct), borderColor: accent2, backgroundColor: accent2, pointRadius: 3, order: 1 }] },
+    options: cOpts }));
+
+  const regions = [...new Set(D.channels.map(r => r.region))];
+  const chans = [...new Set(D.channels.map(r => r.channel))];
+  const shades = [accent, accent2, css('--muted')];
+  const chOpts = base();
+  chOpts.scales.x.stacked = true; chOpts.scales.y.stacked = true; chOpts.scales.y.ticks.callback = v => compact(v);
+  chOpts.plugins.tooltip = { callbacks: { label: c => `${c.dataset.label}: ${money(c.raw)}` } };
+  charts.push(new Chart(document.getElementById('channels'), {
+    type: 'bar',
+    data: { labels: regions, datasets: chans.map((ch, i) => ({ label: ch, backgroundColor: shades[i % 3],
+      data: regions.map(r => (D.channels.find(x => x.region === r && x.channel === ch) || {}).revenue || 0) })) },
+    options: chOpts }));
+
+  const rOpts = base();
+  rOpts.plugins.legend.display = false;
+  rOpts.scales.y.ticks.callback = v => v + '%';
+  charts.push(new Chart(document.getElementById('returns'), {
+    type: 'bar',
+    data: { labels: D.returns.map(r => r.category), datasets: [{ data: D.returns.map(r => r.return_rate_pct), backgroundColor: accent2, borderRadius: 3 }] },
+    options: rOpts }));
+}
+
+document.querySelectorAll('.seg button').forEach(b => b.addEventListener('click', () => {
+  metric = b.dataset.m;
+  document.querySelectorAll('.seg button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  draw();
+}));
+
+if (window.Chart) {
+  Chart.defaults.font.family = 'IBM Plex Sans';
+  draw();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
+  new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+}
+</script>

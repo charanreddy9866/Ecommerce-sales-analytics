@@ -66,12 +66,17 @@ Results are written to `reports/data_quality_report.csv` on every run.
 
 ## Dashboard
 
-The Power BI report (`dashboard/ecommerce_sales.pbix`) uses the CSVs in `reports/` as its data sources. Planned pages:
+**Interactive web dashboard:** [`dashboard/index.html`](dashboard/index.html), built from the CSVs in `reports/` by `scripts/build_dashboard.py`. Open the file in a browser. It shows:
 
-1. **Overview:** total revenue, orders, average order value, MoM growth cards and a monthly revenue trend
-2. **Products:** top 10 products, top 3 products by month, category share
-3. **Customers:** segment comparison, repeat rate, revenue per customer
-4. **Channels & regions:** revenue by channel and region, return rate by category
+- **KPIs:** revenue, orders, average order value, repeat rate, peak month, and 2025 vs 2024 growth
+- **Monthly trend:** revenue, orders or average order value, with month-over-month change on hover
+- **Products:** top 10 products by revenue, and the top 3 products for any month
+- **Categories:** share of revenue with a cumulative (Pareto) line
+- **Customers:** segment comparison of orders, revenue per customer and repeat rate
+- **Channels & regions** and **return rate by category**
+- **Data-quality checks:** each check's failing rows and how they were handled
+
+**Power BI report (planned):** `dashboard/ecommerce_sales.pbix`, using the same CSVs as data sources.
 
 ## Run it
 
@@ -79,6 +84,7 @@ The Power BI report (`dashboard/ecommerce_sales.pbix`) uses the CSVs in `reports
 pip install duckdb pandas matplotlib
 python scripts/generate_data.py   # writes data/*.csv
 python scripts/run_pipeline.py    # DQ checks, clean model, analysis -> reports/
+python scripts/build_dashboard.py # reports/*.csv -> dashboard/index.html
 ```
 
 ## AWS extension (planned)

@@ -1,1 +1,1 @@
-Place the Power BI file (ecommerce_sales.pbix) and dashboard screenshots here.
+`index.html` is the interactive dashboard (rebuild with `python scripts/build_dashboard.py`).\nPlace the Power BI file (`ecommerce_sales.pbix`) and its screenshots here.\n
