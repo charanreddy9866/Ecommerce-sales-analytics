@@ -1,0 +1,6 @@
+check_name,failing_rows
+duplicate_line_items,60
+missing_product_name,40
+invalid_unit_price,30
+invalid_quantity,15
+orphan_order_items,0

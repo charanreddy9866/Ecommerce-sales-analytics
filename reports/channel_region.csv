@@ -1,0 +1,16 @@
+channel,region,revenue,orders
+Marketplace,Southeast,383349.26,923
+Marketplace,Northeast,284161.44,617
+Marketplace,Midwest,276110.06,627
+Marketplace,Southwest,264949.96,646
+Marketplace,West,223025.48,522
+Mobile App,Southeast,909386.29,2105
+Mobile App,Southwest,686168.72,1578
+Mobile App,Midwest,610239.72,1481
+Mobile App,Northeast,602753.07,1430
+Mobile App,West,554852.48,1320
+Web,Southeast,1283864.14,3111
+Web,Northeast,911654.5,2063
+Web,Southwest,892908.14,2143
+Web,Midwest,855250.17,2041
+Web,West,789227.28,1880

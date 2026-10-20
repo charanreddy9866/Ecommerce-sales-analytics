@@ -1,0 +1,4 @@
+segment,customers,orders_per_customer,revenue_per_customer,repeat_rate_pct
+Consumer,3630,3.62,1538.67,45.9
+Prime,1957,3.24,1358.64,45.1
+Small Business,1017,2.96,1262.22,49.7
