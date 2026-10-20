@@ -246,6 +246,7 @@ function draw() {
   const pOpts = base({ indexAxis: 'y' });
   pOpts.plugins.legend.display = false;
   pOpts.scales.x.ticks.callback = v => compact(v);
+  pOpts.scales.y.ticks.font = { family: 'IBM Plex Sans', size: 11 };
   pOpts.plugins.tooltip = { callbacks: { label: c => `${money(c.raw)} · ${D.products[c.dataIndex].units_sold.toLocaleString('en-US')} units` } };
   charts.push(new Chart(document.getElementById('products'), {
     type: 'bar',
@@ -291,6 +292,7 @@ if (window.Chart) {
   Chart.defaults.font.family = 'IBM Plex Sans';
   draw();
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
   new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 }
 </script>
